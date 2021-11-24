@@ -1,5 +1,7 @@
 package ws.ui.model.response;
 
+import ws.dto.ThemeTypeEnum;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
@@ -9,7 +11,16 @@ public class ThemeResponseModel {
     private String primaryColor;
     private String secondaryColor;
     private String fontColor;
+    private ThemeTypeEnum type;
     private String backgroundColor;
+
+    public ThemeTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(ThemeTypeEnum type) {
+        this.type = type;
+    }
 
     public String getName() {
         return name;

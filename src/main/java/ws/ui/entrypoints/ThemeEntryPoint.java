@@ -3,6 +3,7 @@ package ws.ui.entrypoints;
 import org.springframework.beans.BeanUtils;
 import ws.annitations.Secured;
 import ws.dto.ThemeDTO;
+import ws.dto.ThemeTypeEnum;
 import ws.io.entity.ThemeEntity;
 import ws.service.ThemeService;
 import ws.service.ThemeServiceImpl;
@@ -20,6 +21,8 @@ import java.util.List;
 @Path("/themes")
 public class ThemeEntryPoint {
     @POST
+    @Secured
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ThemeResponseModel createTheme(ThemeRequestModel themeToCreate) {
@@ -27,7 +30,12 @@ public class ThemeEntryPoint {
 
         ThemeService themeService = new ThemeServiceImpl();
         ThemeDTO themeDTO = new ThemeDTO();
-        BeanUtils.copyProperties(themeToCreate, themeDTO);
+        String[] ignoredProps = {"type"};
+        BeanUtils.copyProperties(themeToCreate, themeDTO, ignoredProps);
+
+        if (themeToCreate.getType() != null) {
+            themeDTO.setType(ThemeTypeEnum.typeByString(themeToCreate.getType()));
+        }
         ThemeDTO savedTheme = themeService.createTheme(themeDTO);
 
         BeanUtils.copyProperties(savedTheme, returnValue);

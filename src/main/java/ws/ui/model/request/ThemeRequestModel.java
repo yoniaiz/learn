@@ -4,8 +4,17 @@ public class ThemeRequestModel {
     private String primaryColor;
     private String secondaryColor;
     private String fontColor;
+    private String type;
     private String backgroundColor;
     private String name;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getName() {
         return name;

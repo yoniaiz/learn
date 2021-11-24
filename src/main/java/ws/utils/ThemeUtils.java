@@ -33,8 +33,8 @@ public class ThemeUtils {
     public void validateTheme(ThemeDTO theme) {
         if (
                 theme.getName() == null ||
-                theme.getName().isEmpty() ||
-                !isValidHexColor(theme.getBackgroundColor()) ||
+                        theme.getName().isEmpty() ||
+                        !isValidHexColor(theme.getBackgroundColor()) ||
                         !isValidHexColor(theme.getFontColor()) ||
                         !isValidHexColor(theme.getPrimaryColor()) ||
                         !isValidHexColor(theme.getSecondaryColor())

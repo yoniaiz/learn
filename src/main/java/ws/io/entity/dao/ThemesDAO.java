@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.BeanUtils;
 import ws.dto.ThemeDTO;
+import ws.dto.ThemeTypeEnum;
 import ws.exceptions.NotFoundRecordException;
 import ws.io.entity.ThemeEntity;
 import ws.ui.model.response.ErrorMessages;
@@ -44,11 +45,8 @@ public class ThemesDAO {
     }
 
     public ThemeDTO getThemeByColors(ThemeDTO themeRequest) {
-        ThemeDTO theme = null;
-
         CriteriaBuilder cb = session.getCriteriaBuilder();
 
-        // create criteria against a particular persistence class
         CriteriaQuery<ThemeEntity> criteria = cb.createQuery(ThemeEntity.class);
 
         Root<ThemeEntity> themeRoot = criteria.from(ThemeEntity.class);
@@ -61,16 +59,7 @@ public class ThemesDAO {
         criteria.where(predicates);
 
         // fetch singe result
-        Query<ThemeEntity> query = session.createQuery(criteria);
-        List<ThemeEntity> resultList = query.getResultList();
-
-        if (resultList != null && resultList.size() > 0) {
-            ThemeEntity userEntity = resultList.get(0);
-            theme = new ThemeDTO();
-            BeanUtils.copyProperties(userEntity, theme);
-        }
-
-        return theme;
+        return getThemeDTO(criteria);
     }
 
 
@@ -79,6 +68,10 @@ public class ThemesDAO {
         ThemeEntity themeEntity = new ThemeEntity();
 
         BeanUtils.copyProperties(themeRequest, themeEntity);
+
+        if (themeEntity.getType() == null) {
+            themeEntity.setType(ThemeTypeEnum.LIGHT);
+        }
 
         session.beginTransaction();
         session.save(themeEntity);
@@ -94,5 +87,32 @@ public class ThemesDAO {
         } catch (Exception e) {
             throw new NotFoundRecordException(ErrorMessages.RECORD_NOT_FOUND.name());
         }
+    }
+
+    public ThemeDTO getThemeByName(String name) {
+
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+
+        CriteriaQuery<ThemeEntity> criteria = cb.createQuery(ThemeEntity.class);
+
+        Root<ThemeEntity> themeRoot = criteria.from(ThemeEntity.class);
+        criteria.where(cb.equal(themeRoot.get("name"), name));
+
+        return getThemeDTO(criteria);
+    }
+
+    private ThemeDTO getThemeDTO(CriteriaQuery<ThemeEntity> criteria) {
+        ThemeDTO theme = null;
+
+        Query<ThemeEntity> query = session.createQuery(criteria);
+        List<ThemeEntity> resultList = query.getResultList();
+
+        if (resultList != null && resultList.size() > 0) {
+            ThemeEntity userEntity = resultList.get(0);
+            theme = new ThemeDTO();
+            BeanUtils.copyProperties(userEntity, theme);
+        }
+
+        return theme;
     }
 }

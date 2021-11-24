@@ -9,7 +9,16 @@ public class ThemeDTO {
     private String secondaryColor;
     private String fontColor;
     private String backgroundColor;
+    private ThemeTypeEnum type;
     private List<UserDTO> users;
+
+    public ThemeTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(ThemeTypeEnum type) {
+        this.type = type;
+    }
 
     public String getName() {
         return name;

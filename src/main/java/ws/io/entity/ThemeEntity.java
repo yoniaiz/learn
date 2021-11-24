@@ -1,5 +1,7 @@
 package ws.io.entity;
 
+import ws.dto.ThemeTypeEnum;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
@@ -16,11 +18,21 @@ public class ThemeEntity implements Serializable {
     private String secondaryColor;
     private String fontColor;
     private String backgroundColor;
+    @Enumerated(EnumType.STRING)
+    private ThemeTypeEnum type;
     @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<UserEntity> defaultUserTheme;
 
     @ManyToMany
     private List<UserEntity> userLikes;
+
+    public ThemeTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(ThemeTypeEnum type) {
+        this.type = type;
+    }
 
     public List<UserEntity> getDefaultUserTheme() {
         return defaultUserTheme;
