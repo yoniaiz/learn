@@ -91,9 +91,6 @@ public class ThemesDAO {
     public ThemeEntity getTheme(long themeId) {
         try {
             return this.session.get(ThemeEntity.class, themeId);
-//            ThemeDTO themeDTO = new ThemeDTO();
-//            BeanUtils.copyProperties(themeEntity, themeDTO);
-//            return themeDTO;
         } catch (Exception e) {
             throw new NotFoundRecordException(ErrorMessages.RECORD_NOT_FOUND.name());
         }

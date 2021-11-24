@@ -66,4 +66,22 @@ public class UserThemeService {
         return themes.stream().filter(t -> t.getId() == id).findFirst().orElse(null) != null;
     }
 
+    public ThemeEntity setUserDefaultTheme(String userId, long themeId) {
+        UserDTO user;
+        ThemeEntity theme;
+
+        try {
+            this.database.openConnection();
+            user = this.database.getUsersDAO().getUser(userId);
+            theme = this.database.getThemesDAO().getTheme(themeId);
+            user.setSelectedTheme(theme);
+        } finally {
+            this.database.closeConnection();
+        }
+
+        UserService userService = new UserServiceImpl();
+        userService.updateUserDetails(user);
+
+        return theme;
+    }
 }

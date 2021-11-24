@@ -2,7 +2,9 @@ package ws.ui.entrypoints;
 
 import org.springframework.beans.BeanUtils;
 import ws.annitations.Secured;
+import ws.dto.ThemeDTO;
 import ws.dto.UserDTO;
+import ws.io.entity.ThemeEntity;
 import ws.service.UserService;
 import ws.service.UserServiceImpl;
 import ws.ui.model.request.CreateUserRequestModel;
@@ -16,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("/users")
 public class UserEntryPoint {
@@ -47,8 +50,21 @@ public class UserEntryPoint {
 
         UserService userService = new UserServiceImpl();
         UserDTO userProfile = userService.getUser(id);
+        List<Long> likes = userProfile
+                .getLikes()
+                .stream()
+                .map(ThemeEntity::getId)
+                .collect(Collectors.toList());
+        String[] ignoredProps = {"selectedTheme"};
+        BeanUtils.copyProperties(userProfile, returnValue, ignoredProps);
 
-        BeanUtils.copyProperties(userProfile, returnValue);
+        if (userProfile.getSelectedTheme() != null) {
+            ThemeDTO theme = new ThemeDTO();
+            BeanUtils.copyProperties(userProfile.getSelectedTheme(), theme);
+            returnValue.setSelectedTheme(theme);
+        }
+
+        returnValue.setLikes(likes);
         return returnValue;
     }
 
@@ -58,12 +74,10 @@ public class UserEntryPoint {
             @DefaultValue("0") @QueryParam("start") int start,
             @DefaultValue("20") @QueryParam("limit") int limit
     ) {
-        List<CreateUserResponseModel> returnValue = null;
+        List<CreateUserResponseModel> returnValue = new ArrayList<>();
 
         UserService userService = new UserServiceImpl();
         List<UserDTO> users = userService.getUsers(start, limit);
-
-        returnValue = new ArrayList();
 
         for (UserDTO userDTO : users) {
             CreateUserResponseModel userModel = new CreateUserResponseModel();
@@ -84,10 +98,10 @@ public class UserEntryPoint {
         UserService userService = new UserServiceImpl();
         UserDTO storedUserDetails = userService.getUser(id);
 
-        if(userDetails.getFirstname() != null && !userDetails.getFirstname().isEmpty()) {
+        if (userDetails.getFirstname() != null && !userDetails.getFirstname().isEmpty()) {
             storedUserDetails.setFirstname(userDetails.getFirstname());
         }
-        if(userDetails.getLastname() != null && !userDetails.getLastname().isEmpty()) {
+        if (userDetails.getLastname() != null && !userDetails.getLastname().isEmpty()) {
             storedUserDetails.setLastname(userDetails.getLastname());
         }
 
@@ -116,4 +130,6 @@ public class UserEntryPoint {
 
         return returnValue;
     }
+
+
 }

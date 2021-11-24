@@ -1,6 +1,9 @@
 package ws.ui.model.response;
 
+import ws.dto.ThemeDTO;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 @XmlRootElement
 public class CreateUserResponseModel {
@@ -8,6 +11,24 @@ public class CreateUserResponseModel {
     private String lastname;
     private String email;
     private String userId;
+    private ThemeDTO selectedTheme;
+    private List<Long> likes;
+
+    public ThemeDTO getSelectedTheme() {
+        return selectedTheme;
+    }
+
+    public void setSelectedTheme(ThemeDTO selectedTheme) {
+        this.selectedTheme = selectedTheme;
+    }
+
+    public List<Long> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Long> likes) {
+        this.likes = likes;
+    }
 
     public String getFirstname() {
         return firstname;

@@ -16,9 +16,19 @@ public class ThemeEntity implements Serializable {
     private String secondaryColor;
     private String fontColor;
     private String backgroundColor;
+    @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<UserEntity> defaultUserTheme;
 
     @ManyToMany
     private List<UserEntity> userLikes;
+
+    public List<UserEntity> getDefaultUserTheme() {
+        return defaultUserTheme;
+    }
+
+    public void setDefaultUserTheme(List<UserEntity> defaultUserTheme) {
+        this.defaultUserTheme = defaultUserTheme;
+    }
 
     public List<UserEntity> getUserLikes() {
         return userLikes;

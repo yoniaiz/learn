@@ -17,7 +17,16 @@ public class UserDTO implements Serializable {
     private String encryptedPassword;
     private String userId;
     private String token;
+    private ThemeEntity selectedTheme;
     private List<ThemeEntity> likes;
+
+    public ThemeEntity getSelectedTheme() {
+        return selectedTheme;
+    }
+
+    public void setSelectedTheme(ThemeEntity selectedTheme) {
+        this.selectedTheme = selectedTheme;
+    }
 
     public List<ThemeEntity> getLikes() {
         return likes;

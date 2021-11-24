@@ -18,9 +18,9 @@ public class UserEntity implements Serializable {
     private String salt;
     private String encryptedPassword;
     private String token;
-    @OneToOne
+    @ManyToOne(targetEntity = ThemeEntity.class, fetch = FetchType.EAGER)
     private ThemeEntity selectedTheme;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<ThemeEntity> likes;
 
     public List<ThemeEntity> getLikes() {
