@@ -6,6 +6,8 @@ import ws.ui.model.response.ErrorMessages;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Cookie;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -76,5 +78,10 @@ public class UserProfileUtils {
 
     public byte[] encrypt(String encryptedPassword, String accessTokenMaterial) throws InvalidKeySpecException {
         return hash(encryptedPassword.toCharArray(), accessTokenMaterial.getBytes());
+    }
+
+    public String getUserIdFromCookies(ContainerRequestContext containerRequestContext) {
+        Cookie userIdCookie = containerRequestContext.getCookies().get("userId");
+        return userIdCookie.getValue();
     }
 }

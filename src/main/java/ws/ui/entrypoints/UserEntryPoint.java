@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import ws.annitations.Secured;
 import ws.dto.ThemeDTO;
 import ws.dto.UserDTO;
+import ws.filters.SessionUser;
 import ws.io.entity.ThemeEntity;
 import ws.service.UserService;
 import ws.service.UserServiceImpl;
@@ -15,7 +16,9 @@ import ws.ui.model.response.RequestOperation;
 import ws.ui.model.response.ResponseStatus;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,13 +46,13 @@ public class UserEntryPoint {
 
     @Secured
     @GET
-    @Path("/{id}")
+    @Path("/me")
     @Produces(MediaType.APPLICATION_JSON)
-    public CreateUserResponseModel getUserProfile(@PathParam("id") String id) {
+    public CreateUserResponseModel getUserProfile(@Context SecurityContext securityContext) {
         CreateUserResponseModel returnValue = new CreateUserResponseModel();
+        SessionUser sessionUser = (SessionUser) securityContext.getUserPrincipal();
+        UserDTO userProfile = sessionUser.getSessionUser();
 
-        UserService userService = new UserServiceImpl();
-        UserDTO userProfile = userService.getUser(id);
         List<Long> likes = userProfile
                 .getLikes()
                 .stream()
@@ -87,16 +90,16 @@ public class UserEntryPoint {
         return returnValue;
     }
 
+    @Secured
     @PUT
-    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public CreateUserResponseModel updateUser(
-            @PathParam("id") String id,
+            @Context SecurityContext securityContext,
             UpdateUserRequestModel userDetails
     ) {
-        UserService userService = new UserServiceImpl();
-        UserDTO storedUserDetails = userService.getUser(id);
+        SessionUser sessionUser = (SessionUser) securityContext.getUserPrincipal();
+        UserDTO storedUserDetails = sessionUser.getSessionUser();
 
         if (userDetails.getFirstname() != null && !userDetails.getFirstname().isEmpty()) {
             storedUserDetails.setFirstname(userDetails.getFirstname());
@@ -105,6 +108,7 @@ public class UserEntryPoint {
             storedUserDetails.setLastname(userDetails.getLastname());
         }
 
+        UserService userService = new UserServiceImpl();
         userService.updateUserDetails(storedUserDetails);
 
         CreateUserResponseModel returnValue = new CreateUserResponseModel();

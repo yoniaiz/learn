@@ -1,6 +1,5 @@
 package ws.service;
 
-import org.springframework.beans.BeanUtils;
 import ws.dto.UserDTO;
 import ws.exceptions.NotFoundRecordException;
 import ws.io.entity.ThemeEntity;
@@ -18,18 +17,15 @@ public class UserThemeService {
         this.database = new MySQLDAO();
     }
 
-    public boolean likeTheme(String userId, long themeId) {
-        UserDTO updatedUser = new UserDTO();
+    public boolean likeTheme(UserDTO user, long themeId) {
         UserService userService = new UserServiceImpl();
         boolean returnValue = false;
         try {
             this.database.openConnection();
-            UserDTO user = this.database.getUsersDAO().getUser(userId);
-            BeanUtils.copyProperties(user, updatedUser);
-            List<ThemeEntity> themes = updatedUser.getLikes();
+            List<ThemeEntity> themes = user.getLikes();
 
             if (isThemeListContainerThemeId(themes, themeId)) {
-                updatedUser.setLikes(ListWithoutLikedTheme(themes, themeId));
+                user.setLikes(ListWithoutLikedTheme(themes, themeId));
             } else {
                 addLikeToList(themes, themeId);
                 returnValue = true;
@@ -38,7 +34,7 @@ public class UserThemeService {
             this.database.closeConnection();
         }
 
-        userService.updateUserDetails(updatedUser);
+        userService.updateUserDetails(user);
         return returnValue;
     }
 
@@ -66,13 +62,11 @@ public class UserThemeService {
         return themes.stream().filter(t -> t.getId() == id).findFirst().orElse(null) != null;
     }
 
-    public ThemeEntity setUserDefaultTheme(String userId, long themeId) {
-        UserDTO user;
+    public ThemeEntity setUserDefaultTheme(UserDTO user, long themeId) {
         ThemeEntity theme;
 
         try {
             this.database.openConnection();
-            user = this.database.getUsersDAO().getUser(userId);
             theme = this.database.getThemesDAO().getTheme(themeId);
             user.setSelectedTheme(theme);
         } finally {

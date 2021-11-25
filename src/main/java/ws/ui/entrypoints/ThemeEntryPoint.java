@@ -4,6 +4,8 @@ import org.springframework.beans.BeanUtils;
 import ws.annitations.Secured;
 import ws.dto.ThemeDTO;
 import ws.dto.ThemeTypeEnum;
+import ws.dto.UserDTO;
+import ws.filters.SessionUser;
 import ws.io.entity.ThemeEntity;
 import ws.service.ThemeService;
 import ws.service.ThemeServiceImpl;
@@ -14,7 +16,9 @@ import ws.ui.model.response.LikeResponseModel;
 import ws.ui.model.response.ThemeResponseModel;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +26,6 @@ import java.util.List;
 public class ThemeEntryPoint {
     @POST
     @Secured
-    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ThemeResponseModel createTheme(ThemeRequestModel themeToCreate) {
@@ -66,16 +69,18 @@ public class ThemeEntryPoint {
     @GET
     @Secured
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{id}/like/{themeId}")
+    @Path("/like/{themeId}")
     public LikeResponseModel likeTheme(
-            @PathParam("id") String userId,
-            @PathParam("themeId") long themeId) {
-
+            @Context SecurityContext securityContext,
+            @PathParam("themeId") long themeId
+    ) {
+        SessionUser sessionUser = (SessionUser) securityContext.getUserPrincipal();
+        UserDTO storedUserDetails = sessionUser.getSessionUser();
         UserThemeService userThemeService = new UserThemeService();
         LikeResponseModel likeResponseModel = new LikeResponseModel();
 
         likeResponseModel.setThemeId(themeId);
-        if (userThemeService.likeTheme(userId, themeId)) {
+        if (userThemeService.likeTheme(storedUserDetails, themeId)) {
             likeResponseModel.setStatus(LikeEum.LIKED);
         } else {
             likeResponseModel.setStatus(LikeEum.UNLIKED);
@@ -86,14 +91,15 @@ public class ThemeEntryPoint {
 
     @GET
     @Secured
-    @Path("/{id}/defaultTheme/{themeId}")
+    @Path("/defaultTheme/{themeId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public ThemeResponseModel setDefaultTheme(
-            @PathParam("id") String userId,
-            @PathParam("themeId") long themeId) {
+    public ThemeResponseModel setDefaultTheme(@Context SecurityContext securityContext, @PathParam("themeId") long themeId) {
+        SessionUser sessionUser = (SessionUser) securityContext.getUserPrincipal();
+        UserDTO storedUserDetails = sessionUser.getSessionUser();
+
         ThemeResponseModel returnValue = new ThemeResponseModel();
         UserThemeService userThemeService = new UserThemeService();
-        ThemeEntity defaultTheme = userThemeService.setUserDefaultTheme(userId, themeId);
+        ThemeEntity defaultTheme = userThemeService.setUserDefaultTheme(storedUserDetails, themeId);
         BeanUtils.copyProperties(defaultTheme, returnValue);
         return returnValue;
     }
